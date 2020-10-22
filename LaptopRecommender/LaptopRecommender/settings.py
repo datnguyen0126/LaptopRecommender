@@ -10,10 +10,23 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
-import os
+from os.path import exists, abspath, dirname, join
+
+import os, environ
+
+env = environ.Env()
+# reading .env file
+# environ.Env.read_env()
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+env_file = join(dirname(BASE_DIR), ".env")
+if not exists(env_file):
+    env_file = ".env"
+if exists(env_file):
+    environ.Env.read_env(str(env_file))
+environ.Env.read_env()
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 # Quick-start development settings - unsuitable for production
@@ -37,6 +50,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'api_data'
 ]
 
 MIDDLEWARE = [
@@ -75,8 +89,15 @@ WSGI_APPLICATION = 'LaptopRecommender.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': env("DATABASE_NAME"),
+        'USER': env("DATABASE_USER"),
+        'PASSWORD': env("DATABASE_PASSWORD"),
+        'HOST': env("DATABASE_HOST"),
+        'PORT': env("DATABASE_PORT"),
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
+        }
     }
 }
 
