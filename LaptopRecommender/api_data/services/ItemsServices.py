@@ -1,3 +1,5 @@
+from django.db import IntegrityError
+
 from api_data.models import Laptop, LaptopId
 from api_data.utils import *
 import requests, json
@@ -28,9 +30,13 @@ class DataServices:
 
     @classmethod
     def start_get_items(cls):
-        item_ids = LaptopId.objects.all()[1:10]
+        item_ids = LaptopId.objects.all()
         for item_id in item_ids:
             data = cls.get_product(item_id.id)
-            Laptop.objects.create(**data)
+            print('Getting product: ', item_id.id)
+            try:
+                Laptop.objects.create(**data)
+            except IntegrityError:
+                continue
 
 

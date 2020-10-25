@@ -1,4 +1,6 @@
 from bs4 import BeautifulSoup
+from django.db import IntegrityError
+
 from api_data.utils import *
 from api_data.models import LaptopId
 import requests
@@ -25,7 +27,10 @@ class ListDataServices:
 
             for product in product_ids_list:
                 product_list.append(product.get("data-id"))
-                LaptopId.objects.create(id=product.get("data-id"), link=product.contents[1].get('href'))
+                try:
+                    LaptopId.objects.create(id=product.get("data-id"), link=product.contents[1].get('href'))
+                except IntegrityError:
+                    continue
 
             i += 1
 
