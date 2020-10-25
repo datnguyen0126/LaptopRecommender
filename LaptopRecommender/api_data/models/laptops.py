@@ -10,7 +10,7 @@ class Laptop(models.Model):
     rating_average = models.CharField(max_length=255, blank=True, null=True)
     review_count = models.CharField(max_length=255, blank=True, null=True)
     brand = models.CharField(max_length=255, blank=True, null=True)
-    dimension = models.CharField(max_length=255, blank=True, null=True)
+    dimension = models.TextField(blank=True, null=True)
     weight = models.CharField(max_length=255, blank=True, null=True)
     cpu = models.CharField(max_length=255, blank=True, null=True)
     display = models.CharField(max_length=255, blank=True, null=True)
