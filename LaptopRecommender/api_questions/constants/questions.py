@@ -3,7 +3,6 @@
 class Questions():
     QUESTIONS = [
         {
-            "id": 1,
             "content": "How much are you going to spend?",
             "options": [
                 "Up to 5000000",
@@ -15,86 +14,63 @@ class Questions():
                 "Another range",
                 "Unlimited",
             ],
+            "train": False,
             "required": True,
             "multiple": False,
             "spec": False
         },
         {
-            "id": 2,
-            "content": "What will you mainly use your laptop for?",
-            "options": [
-                "Personal Use",
-                "Professional Use",
-            ],
-            "required": False,
-            "multiple": False,
-            "spec": False
-        },
-        {
-            "id": 3,
             "content": "Which of the following will you use frequently?",
             "options": [
+                "Web browsing",
+                "Document",
+                "Watching Movies",
+                "Light Gaming",
+                "Heavy Gaming",
                 "Photo editing (pro)",
                 "Photo editing (basic)",
-                "Music editing",
                 "Video production (pro)",
                 "Video production basic)",
                 "3D design",
                 "Front-end developer",
                 "Back-end Tech"
             ],
+            "train": True,
             "required": True,
             "multiple": True,
             "spec": False
         },
         {
-            "id": 4,
-            "content": "Which of the following will you use frequently?",
+            "content": "Which brand do you prefer?",
             "options": [
-                "Web browsing",
-                "Social Media",
-                "Email",
-                "Document",
-                "Watching Movies",
-                "Light Gaming",
-                "Medium Gaming",
-                "Heavy Gaming",
-                "Light photo or Video Editing",
-                "Heavy photo or video Editing"
+                "HP",
+                "Dell",
+                "Acer",
+                "Asus",
+                "Lenovo",
+                "Apple",
+                "MSI",
+                "Any"
             ],
-            "required": True,
-            "multiple": True,
-            "spec": False
-        },
-        {
-            "id": 5,
-            "content": "Where will you use your laptop?",
-            "options": [
-                "All around the house",
-                "Public places",
-                "Long journeys",
-                "At your desk"
-            ],
+            "train": False,
             "required": False,
-            "multiple": False,
+            "multiple": True,
             "spec": False
         },
         {
-            "id": 6,
             "content": "Are any of these important to you?",
             "options": [
-                "Using laptop as a tablet",
                 "Touchscreen laptop",
-                "Need to work continuously for long time",
+                "Having SSD",
                 "Working in low light conditions",
                 "Fingerprint",
             ],
+            "train": False,
             "required": False,
             "multiple": True,
             "spec": False
         },
         {
-            "id": 7,
             "content": "Is there a specific screen size you prefer?",
             "options": [
                 "Very small (<= 13')",
@@ -103,12 +79,12 @@ class Questions():
                 "Large (> 17')",
                 "Any size"
             ],
+            "train": False,
             "required": True,
             "multiple": True,
             "spec": False
         },
         {
-            "id": 8,
             "content": "Which operating system are you comfortable with?",
             "options": [
                 "Microsoft windows",
@@ -116,12 +92,12 @@ class Questions():
                 "Linux",
                 "Any os"
             ],
+            "train": False,
             "required": True,
-            "multiple": True,
+            "multiple": False,
             "spec": False
         },
         {
-            "id": 9,
             "content": "Which series cpu you prefer?",
             "options": [
                 "Intel pentium",
@@ -130,12 +106,12 @@ class Questions():
                 "Intel core i7",
                 "Amd"
             ],
+            "train": False,
             "required": False,
             "multiple": True,
             "spec": True
         },
         {
-            "id": 10,
             "content": "Do you want a good graphic cards?",
             "options": [
                 "Integrated intel",
@@ -144,19 +120,19 @@ class Questions():
                 "Amd radeon series",
                 "Amd vega series"
             ],
+            "train": False,
             "required": False,
             "multiple": True,
             "spec": True
         },
         {
-            "id": 11,
             "content": "How about weight?",
             "options": [
-                "Very light (1.5kg)",
-                "Medium (2kg)",
-                "Little heavy (2.5kg)",
-                "No problem"
+                "Very light",
+                "Medium",
+                "Don't bother"
             ],
+            "train": True,
             "required": False,
             "multiple": True,
             "spec": True

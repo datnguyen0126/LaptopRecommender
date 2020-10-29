@@ -1,7 +1,8 @@
 from django.db import IntegrityError
 
-from api_data.models import Laptop, LaptopId
+from api_data.models import Laptop, LaptopId, LaptopBackup
 from api_data.utils import *
+from api_data.utils2 import *
 import requests, json
 
 API_GET_ITEM = "https://tiki.vn/api/v2/products/{id}"
@@ -39,4 +40,41 @@ class DataServices:
             except IntegrityError:
                 continue
 
+    @classmethod
+    def backup_data(cls):
+        queryset = Laptop.objects.all()
+        for item in queryset:
+            if not (item.cpu and item.dimension and item.weight and item.ram):
+                temp_laptop = LaptopBackup()
+                temp_laptop.__dict__ = item.__dict__.copy()
+                temp_laptop.save()
+
+    @classmethod
+    def clean_data(cls):
+        queryset = LaptopBackup.objects.all()
+        for item in queryset:
+            res = clean_data(item)
+            if not item.cpu:
+                item.cpu = res.get('cpu')
+            if not item.ram:
+                item.ram = res.get('ram')
+            if not item.vga:
+                item.vga = res.get('vga')
+            if not item.disk:
+                item.disk = res.get('disk')
+            if not item.display:
+                item.display = res.get('display')
+            if not item.screen_size:
+                item.screen_size = res.get('screen_size')
+            if not item.battery:
+                item.battery = res.get('battery')
+            item.save()
+
+    @classmethod
+    def restore_data(cls):
+        items = LaptopBackup.objects.all()
+        for item in items:
+            temp_laptop = Laptop()
+            temp_laptop.__dict__ = item.__dict__.copy()
+            temp_laptop.save()
 

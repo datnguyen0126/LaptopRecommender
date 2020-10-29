@@ -1,7 +1,7 @@
 from django.db import models
 
 
-class Laptop(models.Model):
+class LaptopBackup(models.Model):
     id = models.IntegerField(primary_key=True)
     description = models.TextField(blank=True, null=True)
     name = models.CharField(max_length=255, blank=True, null=True)
@@ -19,11 +19,8 @@ class Laptop(models.Model):
     disk = models.CharField(max_length=255, blank=True, null=True)
     ram = models.CharField(max_length=255, blank=True, null=True)
     battery = models.CharField(max_length=255, blank=True, null=True)
-    seller = models.CharField(max_length=255, blank=True, null=True)
-
-    # train fields
-    train = models.BooleanField(default=False)
-    purpose_group = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
-        db_table = 'laptop'
+        db_table = 'laptop_backup'
+
+

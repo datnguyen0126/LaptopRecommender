@@ -11,25 +11,6 @@ FAKE_HEADER = {
 
 ITEM_FIELDS = ["id", "description", "name", "price", "stock", "rating_average", "review_count", "specifications"]
 
-SAMPLE_DESCRIPTION = """BẢO HÀNH 6 THÁNG – LỖI ĐỔI MỚI TRONG 15 NGÀY
-HỖ TRỢ KỸ THUẬT TRỌN ĐỜI MÁY
-👍 Được sản xuất năm 2013, Dell Latitude E7240 đã tạo ra một làn gió mới cho dòng máy tính xách tay dành cho doanh nhân 🏻
-• Thuộc dòng Ultrabook nên thiết kế nhỏ gọn, kiểu dáng hấp dẫn và bắt mắt cùng vẻ ngoài bóng bẩy.
-• Dell Latitude E7240 trọng lượng khá nhẹ chỉ 1,34kg, bộ khung máy được làm chắc chắn bằng hợp kim nhôm, phần nắp máy được làm bằng carbon mềm mại, chống dấu vân tay và bụi bẩn cực tốt.
-• Touchpad rộng, bề mặt nhẵn mịn, cho phép bạn di chuyển, điều hướng trên máy một cách dễ dàng, chính xác không bị trơn trượt và bám vân tay.
-•  Dell Latitude E7240 vẫn hỗ trợ khá đầy đủ các cổng kết nối.
-• Sở hữu màn hình khá thon gọn 12.5 inch cùng độ phân giải cực lớn 1366 x 768 pixels. Công nghệ màn hình LED Backlight WXGA HD cho chất lượng hình ảnh sinh động
-• Loa gắn ở mặt dưới Latitude E7240 tạo âm thanh tương đối lớn và giàu cảm xúc đối với kích cỡ của máy
-Dell Latitude E7240 thực sự là một sự lựa chọn hoàn hảo cho bạn !!
-Thông số kỹ thuật :
-• CPU : Intel® Core™ i5-4600U
-• Memory : 4GB
-• SSD : 128Gb
-• VGA : Intel HD Graphics 4400
-• Display : 12.5″ HD
-• Weight : 1.34 Kg"""
-
-
 def get_value_of_property(item, property):
     if property == "rating_star":
         return item.get('item_rating').get('rating_star')
