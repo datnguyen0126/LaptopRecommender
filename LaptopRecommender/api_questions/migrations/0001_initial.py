@@ -7,19 +7,23 @@ from api_questions.constants import Questions
 
 def load_questions(apps, schema_editor):
     question_model = apps.get_model('api_questions', 'Questions')
+    i = 0
     for question in Questions.QUESTIONS:
-        question_model.objects.create(id=question.get('id'), content=question.get('content'),\
+        question_model.objects.create(id=i, content=question.get('content'),\
                                       required=question.get('required'), multiple=question.get('multiple'),\
                                       spec=question.get('spec'))
+        i += 1
 
 
 def load_options(apps, schema_editor):
     question_model = apps.get_model('api_questions', 'Questions')
     option_model = apps.get_model('api_questions', 'Answers')
+    i = 0
     for question in Questions.QUESTIONS:
-        question1 = question_model.objects.get(pk=question.get('id'))
+        question1 = question_model.objects.get(pk=i)
         for option in question.get('options'):
             option_model.objects.create(content=option, question=question1)
+        i += 1
 
 
 class Migration(migrations.Migration):

@@ -12,7 +12,9 @@ class QuestionViewSet(viewsets.GenericViewSet):
     permission_classes = [AllowAny, ]
 
     def list(self, request):
-        pass
+        question = Questions.objects.all()
+        question_serializer = self.get_serializer(question, many=True)
+        return Response(question_serializer.data)
 
     def retrieve(self, request, *args, **kwargs):
         question = Questions.objects.filter(id=kwargs.get('pk')).first()

@@ -7,6 +7,7 @@ class Questions(models.Model):
     required = models.BooleanField(default=True)
     multiple = models.BooleanField(default=True)
     spec = models.BooleanField(default=True)
+    train = models.BooleanField(default=False)
 
     class Meta:
         db_table = 'questions'

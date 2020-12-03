@@ -3,7 +3,7 @@ from django.db import IntegrityError
 
 from api_data.utils import *
 from api_data.models import LaptopId
-import requests
+import requests, json
 
 LAPTOP_URL = "https://tiki.vn/laptop/c8095?src=c.8095.hamburger_menu_fly_out_banner&page={page}"
 product_url = "https://tiki.vn/api/v2/products/{}"
@@ -39,3 +39,13 @@ class ListDataServices:
     @classmethod
     def start_get_list(cls):
         cls.get_product_id()
+
+    @classmethod
+    def get_thumnails(cls):
+        laptop_ids = LaptopId.objects.all()
+        for laptop in laptop_ids:
+            source = requests.get(product_url.format(laptop.id), headers=FAKE_HEADER).text
+            data = json.loads(source)
+            laptop.thumbnails = data.get('thumbnail_url')
+            laptop.save()
+
