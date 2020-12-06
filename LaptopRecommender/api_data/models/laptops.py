@@ -2,7 +2,9 @@ from django.db import models
 
 
 class Laptop(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.AutoField(primary_key=True)
+    link = models.CharField(max_length=255, default='')
+    thumbnails = models.CharField(max_length=255, default='')
     description = models.TextField(blank=True, null=True)
     name = models.CharField(max_length=255, blank=True, null=True)
     price = models.IntegerField(default=0, blank=True, null=True)

@@ -4,7 +4,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
-from .services import DataServices, ListDataServices, ScoreServices
+from .services import DataServices, ListDataServices, ScoreServices, ShopCrawler
 from .serializers import LaptopSerializers
 from .models import Laptop, CpuScore
 
@@ -12,6 +12,17 @@ from .models import Laptop, CpuScore
 class DataViewSet(viewsets.GenericViewSet):
     permission_classes = [AllowAny, ]
     serializer_class = LaptopSerializers
+
+    @action(methods=['GET'], detail=True)
+    def get_shop_data(self, request, pk=None):
+        shop_id = int(pk)
+        success, failed = ShopCrawler.fetch_data(shop_id)
+        data = dict(
+            total=success + len(failed),
+            success=success,
+            failed=failed
+        )
+        return Response(data, status=status.HTTP_200_OK)
 
     @action(methods=['GET'], detail=False)
     def get_data(self, request):

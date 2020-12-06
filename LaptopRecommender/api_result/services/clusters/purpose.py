@@ -7,8 +7,6 @@ class PurposeCluster:
     k = 7
     options = [
         "Web browsing",
-        "Social Media",
-        "Email",
         "Document",
         "Watching Movies",
         "Light Gaming",
@@ -18,7 +16,6 @@ class PurposeCluster:
         "Video production basic)",
         "Video production (pro)",
         "3D design",
-        "Science study"
         "Front-end developer",
         "Back-end developer"
     ]
