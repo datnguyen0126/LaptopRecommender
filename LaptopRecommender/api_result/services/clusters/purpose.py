@@ -99,7 +99,6 @@ class PurposeCluster:
         ids = []
         for laptop in laptops_queryset:
             if cls.check_laptop('Heavy gaming', laptop):
-                print(1)
                 ids.append(laptop.id)
         laptops_queryset = laptops_queryset.filter(id__in=ids)
         return laptops_queryset

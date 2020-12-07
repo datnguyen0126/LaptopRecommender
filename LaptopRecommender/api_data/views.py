@@ -32,6 +32,12 @@ class DataViewSet(viewsets.GenericViewSet):
         data = { 'detail': 'get data successful' }
         return Response(data, status=status.HTTP_200_OK)
 
+    @action(methods=['DELETE'], detail=False)
+    def remove_all(self, request):
+        Laptop.objects.filter(id__gte=-1, train=0).delete()
+        data = { 'detail': 'delete data successful' }
+        return Response(data, status=status.HTTP_200_OK)
+
     @action(methods=['GET'], detail=False)
     def clean(self, request):
         DataServices.restore_data()

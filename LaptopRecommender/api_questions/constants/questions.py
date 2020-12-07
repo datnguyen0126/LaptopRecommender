@@ -11,13 +11,13 @@ class Questions():
                 "Up to 20000000",
                 "Up to 25000000",
                 "Up to 30000000",
-                "Another range",
+                "Up to 40000000",
                 "Unlimited",
             ],
             "train": False,
             "required": True,
             "multiple": False,
-            "spec": False
+            "spec": True
         },
         {
             "content": "Which of the following will you use frequently?",
@@ -55,7 +55,7 @@ class Questions():
             "train": False,
             "required": False,
             "multiple": True,
-            "spec": False
+            "spec": True
         },
         {
             "content": "Are any of these important to you?",
@@ -80,9 +80,9 @@ class Questions():
                 "Any size"
             ],
             "train": False,
-            "required": True,
+            "required": False,
             "multiple": True,
-            "spec": False
+            "spec": True
         },
         {
             "content": "Which operating system are you comfortable with?",
@@ -93,7 +93,7 @@ class Questions():
                 "Any os"
             ],
             "train": False,
-            "required": True,
+            "required": False,
             "multiple": False,
             "spec": False
         },
@@ -117,8 +117,7 @@ class Questions():
                 "Integrated intel",
                 "Nvidia geforce GT series",
                 "Nvidia geforce GTX series",
-                "Amd radeon series",
-                "Amd vega series"
+                "Amd series"
             ],
             "train": False,
             "required": False,

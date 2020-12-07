@@ -1,6 +1,7 @@
 from rest_framework import serializers
-from api_result.models import ClusteringScores, TrainData
-from api_data.serializers import LaptopSerializers
+
+from api_questions.serializers import AnswerSerializers
+from api_result.models import ClusteringScores, TrainData, Reply
 
 
 class ClusterScoreSerializers(serializers.ModelSerializer):
