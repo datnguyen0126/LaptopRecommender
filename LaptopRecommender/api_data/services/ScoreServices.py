@@ -29,6 +29,8 @@ class ScoreServices:
 
     @classmethod
     def save_cpu_scores(cls):
+        # clear the gpu database
+        CpuScore.objects.filter(id__lt=0).delete()
         datalist = cls.get_cpu_scores()
         for data in datalist:
             try:
@@ -57,6 +59,8 @@ class ScoreServices:
 
     @classmethod
     def save_gpu_scores(cls):
+        # clear the gpu database
+        GpuScore.objects.filter(id__lt=0).delete()
         datalist = cls.get_gpu_scores()
         for data in datalist:
             try:

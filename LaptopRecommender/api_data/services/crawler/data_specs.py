@@ -56,6 +56,9 @@ class DataSpecs:
                     result.update(temp_dict)
                     break
         pattern = '\d*\.?\d+'
-        size = re.findall(pattern, result.get('display'))[0]
-        result.update(screen_size=size)
+        try:
+            size = re.findall(pattern, result.get('display'))[0]
+            result.update(screen_size=size)
+        except Exception:
+            result.update(screen_size=0)
         return result

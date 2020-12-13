@@ -1,24 +1,28 @@
+import operator
+from functools import reduce
+
+from django.db.models import Q
+
 from api_data.models import Laptop
 from api.utils import Utils
 from api_result.models import ClusteringScores, TrainData
-
+from api_questions.constants import Questions
+from api_result.services.ExtractDataService import ExtractDataService
 
 class PurposeCluster:
-    k = 7
-    options = [
-        "Web browsing",
-        "Document",
-        "Watching Movies",
-        "Light Gaming",
-        "Heavy Gaming",
-        "Photo editing (basic)",
-        "Photo editing (pro)",
-        "Video production basic)",
-        "Video production (pro)",
-        "3D design",
-        "Front-end developer",
-        "Back-end developer"
-    ]
+    k = 5
+    options = Questions.QUESTIONS[1]["options"]
+    # "Web browsing",
+    # "Document",
+    # "Watching Movies",
+    # "Light Gaming",
+    # "Heavy Gaming",
+    # "Photo editing (pro)",
+    # "Photo editing (basic)",
+    # "Video production (pro)",
+    # "Video production basic)",
+    # "3D design",
+    # "Programming"
 
     @classmethod
     def get_answer_index(cls, purpose_answer):
@@ -34,36 +38,29 @@ class PurposeCluster:
     @classmethod
     def cluster_purpose(cls, laptops, purpose_answer):
         answers = cls.get_answer_index(purpose_answer)
+        print(answers)
         if answers.get(0):
             laptops = cls.get_Web_browsing(laptops)
         if answers.get(1):
-            laptops = cls.get_Social_media(laptops)
-        if answers.get(2):
-            laptops = cls.get_Email(laptops)
-        if answers.get(3):
             laptops = cls.get_Document(laptops)
-        if answers.get(4):
+        if answers.get(2):
             laptops = cls.get_Watching_Movies(laptops)
-        if answers.get(5):
+        if answers.get(3):
             laptops = cls.get_Light_Gaming(laptops)
-        if answers.get(6):
+        if answers.get(4):
             laptops = cls.get_Heavy_Gaming(laptops)
-        if answers.get(7):
-            laptops = cls.get_Photo_editing_basic(laptops)
-        if answers.get(8):
+        if answers.get(5):
             laptops = cls.get_Photo_editing_pro(laptops)
-        if answers.get(9):
-            laptops = cls.get_Video_production_basic(laptops)
-        if answers.get(10):
+        if answers.get(6):
+            laptops = cls.get_Photo_editing_basic(laptops)
+        if answers.get(7):
             laptops = cls.get_Video_production_pro(laptops)
-        if answers.get(11):
+        if answers.get(8):
+            laptops = cls.get_Video_production_basic(laptops)
+        if answers.get(9):
             laptops = cls.get_3D_design(laptops)
-        if answers.get(12):
-            laptops = cls.get_Science_study(laptops)
-        if answers.get(13):
-            laptops = cls.get_Frontend_developer(laptops)
-        if answers.get(14):
-            laptops = cls.get_Backend_developer(laptops)
+        if answers.get(10):
+            laptops = cls.get_programming(laptops)
         return laptops
 
     @classmethod
@@ -71,91 +68,95 @@ class PurposeCluster:
         return laptops_queryset
 
     @classmethod
-    def get_Email(cls, laptops_queryset):
-        return laptops_queryset
-
-    @classmethod
-    def get_Social_media(cls, laptops_queryset):
-        return laptops_queryset
-
-    @classmethod
     def get_Document(cls, laptops_queryset):
-        return laptops_queryset
+        search_words = ['1TB', '512GB']
+        return laptops_queryset.filter(reduce(operator.or_, (Q(disk__icontains=x) for x in search_words)))
 
     @classmethod
     def get_Watching_Movies(cls, laptops_queryset):
-        # laptops_queryset = laptops_queryset.filter()
-        return laptops_queryset
+        search_words = ['full hd', '1080', '1440', 'fullhd', 'ips']
+        laptops_queryset = laptops_queryset.filter(reduce(operator.or_, (Q(display__icontains=x) for x in search_words)))
+        large_macbook = ExtractDataService.get_macbook(small=False)
+        return laptops_queryset | large_macbook
 
     @classmethod
     def get_Light_Gaming(cls, laptops_queryset):
-        temp_laptops = laptops_queryset.copy()
-        ids = [laptop.id for laptop in laptops_queryset if cls.check_laptop('light gaming', laptop)]
-        temp_laptops = temp_laptops(id__in=ids)
-        return temp_laptops
+        ids = []
+        for laptop in laptops_queryset:
+            if cls.check_laptop('light gaming', laptop):
+                ids.append(laptop.id)
+        laptops_queryset = laptops_queryset.filter(id__in=ids).exclude(name__icontains='macbook')
+        laptops_queryset = ExtractDataService.ram_filter(laptops_queryset, min=7)
+        return laptops_queryset
 
     @classmethod
     def get_Heavy_Gaming(cls, laptops_queryset):
         ids = []
         for laptop in laptops_queryset:
-            if cls.check_laptop('Heavy gaming', laptop):
+            if cls.check_laptop('heavy gaming', laptop):
                 ids.append(laptop.id)
-        laptops_queryset = laptops_queryset.filter(id__in=ids)
+        laptops_queryset = laptops_queryset.filter(id__in=ids).exclude(name__icontains='macbook')
+        laptops_queryset = ExtractDataService.ram_filter(laptops_queryset, min=7)
         return laptops_queryset
 
     @classmethod
     def get_Photo_editing_pro(cls, laptops_queryset):
-        temp_laptops = laptops_queryset.copy()
-        ids = [laptop.id for laptop in laptops_queryset if cls.check_laptop('Photo editing (pro)', laptop)]
-        temp_laptops = temp_laptops(id__in=ids)
-        return temp_laptops
-
-    @classmethod
-    def get_Photo_editing_basic(cls, laptops_queryset):
-        temp_laptops = laptops_queryset.copy()
-        ids = [laptop.id for laptop in laptops_queryset if cls.check_laptop('Photo editing (basic)', laptop)]
-        temp_laptops = temp_laptops(id__in=ids)
-        return temp_laptops
-
-    @classmethod
-    def get_Video_production_pro(cls, laptops_queryset):
-        temp_laptops = laptops_queryset.copy()
-        ids = [laptop.id for laptop in laptops_queryset if cls.check_laptop('Video production (pro)', laptop)]
-        temp_laptops = temp_laptops(id__in=ids)
-        return temp_laptops
-
-    @classmethod
-    def get_Video_production_basic(cls, laptops_queryset):
-        temp_laptops = laptops_queryset.copy()
-        ids = [laptop.id for laptop in laptops_queryset if cls.check_laptop('Video production basic)', laptop)]
-        temp_laptops = temp_laptops(id__in=ids)
-        return temp_laptops
-
-    @classmethod
-    def get_3D_design(cls, laptops_queryset):
-        laptops_queryset = laptops_queryset.filter(vga__icontains='quadro')
+        ids = []
+        for laptop in laptops_queryset:
+            if cls.check_laptop('Video production (pro)', laptop):
+                ids.append(laptop.id)
+        laptops_queryset = laptops_queryset.filter(id__in=ids)
+        laptops_queryset = ExtractDataService.ram_filter(laptops_queryset, min=15)
+        laptops_queryset = laptops_queryset | ExtractDataService.get_macbook(small=False)
         return laptops_queryset
 
     @classmethod
-    def get_Science_study(cls, laptops_queryset):
-        temp_laptops = laptops_queryset.copy()
-        ids = [laptop.id for laptop in laptops_queryset if cls.check_laptop('Science study', laptop)]
-        temp_laptops = temp_laptops(id__in=ids)
-        return temp_laptops
+    def get_Photo_editing_basic(cls, laptops_queryset):
+        ids = []
+        for laptop in laptops_queryset:
+            if cls.check_laptop('Video production (basic)', laptop):
+                ids.append(laptop.id)
+        laptops_queryset = laptops_queryset.filter(id__in=ids)
+        laptops_queryset = ExtractDataService.ram_filter(laptops_queryset, min=7)
+        laptops_queryset = laptops_queryset | ExtractDataService.get_macbook(all=True, pro=True)
+        return laptops_queryset
 
     @classmethod
-    def get_Frontend_developer(cls, laptops_queryset):
-        temp_laptops = laptops_queryset.copy()
-        ids = [laptop.id for laptop in laptops_queryset if cls.check_laptop('Front-end developer', laptop)]
-        temp_laptops = temp_laptops(id__in=ids)
-        return temp_laptops
+    def get_Video_production_pro(cls, laptops_queryset):
+        ids = []
+        for laptop in laptops_queryset:
+            if cls.check_laptop('Video production (pro)', laptop):
+                ids.append(laptop.id)
+        laptops_queryset = laptops_queryset.filter(id__in=ids)
+        laptops_queryset = ExtractDataService.ram_filter(laptops_queryset, min=15)
+        laptops_queryset = laptops_queryset | ExtractDataService.get_macbook(small=False)
+        return laptops_queryset
 
     @classmethod
-    def get_Backend_developer(cls, laptops_queryset):
-        temp_laptops = laptops_queryset.copy()
-        ids = [laptop.id for laptop in laptops_queryset if cls.check_laptop('Back-end developer', laptop)]
-        temp_laptops = temp_laptops(id__in=ids)
-        return temp_laptops
+    def get_Video_production_basic(cls, laptops_queryset):
+        ids = []
+        for laptop in laptops_queryset:
+            if cls.check_laptop('Video production (basic)', laptop):
+                ids.append(laptop.id)
+        laptops_queryset = laptops_queryset.filter(id__in=ids)
+        laptops_queryset = ExtractDataService.ram_filter(laptops_queryset, min=7)
+        laptops_queryset = laptops_queryset | ExtractDataService.get_macbook(all=True, pro=True)
+        return laptops_queryset
+
+    @classmethod
+    def get_3D_design(cls, laptops_queryset):
+        search_vga = ['quadro', 'rtx', 'firepro', 'gtx 20']
+        laptops_queryset = laptops_queryset.filter(Q(reduce(operator.or_, (Q(vga__icontains=x) for x in search_vga))))
+        return laptops_queryset
+
+    @classmethod
+    def get_programming(cls, laptops_queryset):
+        search_cpu = ['i5', 'i7', 'i9', 'ryzen 5', 'ryzen 7']
+        search_ram = ['8GB', '16GB']
+        laptops_queryset = laptops_queryset.filter(reduce(operator.or_, (Q(cpu__icontains=x) for x in search_cpu)))\
+                                            .filter(reduce(operator.or_, (Q(ram__icontains=x) for x in search_ram)))\
+                                            .filter(disk__icontains='ssd')
+        return laptops_queryset | ExtractDataService.get_macbook(all=True, pro=True)
 
     @classmethod
     def distance(cls, check_laptop, train_laptop):

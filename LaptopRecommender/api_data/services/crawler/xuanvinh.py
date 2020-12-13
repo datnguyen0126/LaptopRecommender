@@ -1,4 +1,4 @@
-from api_data.models import LaptopBackup
+from api_data.models import Laptop
 from api_data.services.crawler.data_specs import DataSpecs
 from api_data.utils import FAKE_HEADER
 from bs4 import BeautifulSoup
@@ -63,10 +63,10 @@ class XuanVinhCrawler:
         for tr in table.findAll('tr'):
             temp = []
             for td in tr.findAll('td'):
-                    if td.find('p'):
-                        temp.append(td.find('span').text)
-                    else:
-                        temp.append(td.text)
+                if td.find('p'):
+                    temp.append(td.find('span').text)
+                else:
+                    temp.append(td.text)
             if temp[0] == 'Dung lượng':
                 if 'ddr' in temp[1].lower():
                     temp_dict = {
@@ -81,7 +81,7 @@ class XuanVinhCrawler:
             else:
                 if len(temp) > 1:
                     temp_dict = {
-                        temp[0]: temp[1]
+                        temp[0].strip(): temp[1]
                     }
                     ret.update(temp_dict)
         return ret, str(description), name, price, thumbnail
@@ -101,7 +101,7 @@ class XuanVinhCrawler:
                                                                price=price, thumbnail=thumbnail)
                     clean_specs.update(link=product_link)
 
-                    LaptopBackup.objects.create(**clean_specs)
+                    Laptop.objects.create(**clean_specs)
                 except Exception as e:
                     failed.append(product_link)
                     print(e)

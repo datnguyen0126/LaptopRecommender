@@ -25,6 +25,7 @@ class ClusterServices:
                 detected_gpu = gpu_score
         #print(item.vga, ' | ', detected_gpu.name, ' | ', max_ratio)
         if detected_gpu is not None:
+            print(detected_gpu.name)
             laptop_score = ClusteringScores.objects.filter(laptop=item).first()
             if laptop_score:
                 ClusteringScores.objects.filter(laptop=item).update(laptop_gpu=item.vga, detected_gpu=detected_gpu.name,
@@ -61,7 +62,7 @@ class ClusterServices:
 
     @classmethod
     def set_scores(cls):
-        rand = random.randint(0, 500)
+        ClusteringScores.objects.filter(id__lt=0).delete()
         laptops = Laptop.objects.all()
         for laptop in laptops:
             cls.set_score_cpu(laptop)

@@ -11,15 +11,18 @@ class ReplyViewSet(viewsets.GenericViewSet):
 
     permission_classes = [AllowAny, ]
 
-    @action(methods=['GET'], detail=False)
+    @action(methods=['POST'], detail=False)
     def get(self, request):
         answer = request.data.get('answer')
         reply = Reply.objects.filter(answer__content=answer).first()
-        ret = dict(
-            id=reply.id,
-            content=reply.content,
-            answer=reply.answer.content
-        )
+        if reply:
+            ret = dict(
+                id=reply.id,
+                content=reply.content,
+                answer=reply.answer.content
+            )
+        else:
+            ret = {}
         return Response(ret, status=status.HTTP_200_OK)
 
     @action(methods=['POST'], detail=False)

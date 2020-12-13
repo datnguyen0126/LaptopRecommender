@@ -13,9 +13,9 @@ class LaptopSerializers(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
-        laptop_id = LaptopId.objects.filter(id=ret.get('id')).first()
-        if laptop_id:
-            ret.update(link=laptop_id.link)
-            ret.update(thumbnails=laptop_id.thumbnails)
+        if ret.get('link'):
+            ret.update(shop=ret.get('link').split('/')[2])
+        else:
+            ret.update(shop='')
         return ret
 

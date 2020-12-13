@@ -4,9 +4,9 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
-from .services import DataServices, ListDataServices, ScoreServices, ShopCrawler
+from .services import ScoreServices, ShopCrawler
 from .serializers import LaptopSerializers
-from .models import Laptop, CpuScore
+from .models import Laptop
 
 
 class DataViewSet(viewsets.GenericViewSet):
@@ -25,35 +25,24 @@ class DataViewSet(viewsets.GenericViewSet):
         return Response(data, status=status.HTTP_200_OK)
 
     @action(methods=['GET'], detail=False)
-    def get_data(self, request):
-        # query_max = self.request.query_params.get('max', None)
-        ListDataServices.start_get_list()
-        DataServices.start_get_items()
-        data = { 'detail': 'get data successful' }
+    def get_all_shop_data(self, request):
+        total = [1, 2, 3]
+        success, failed = 0, []
+        for i in total:
+            temp_suc, temp_failed = ShopCrawler.fetch_data(i)
+            success = success + temp_suc
+            failed = failed + temp_failed
+        data = dict(
+            total=success + len(failed),
+            success=success,
+            failed=failed
+        )
         return Response(data, status=status.HTTP_200_OK)
 
     @action(methods=['DELETE'], detail=False)
     def remove_all(self, request):
         Laptop.objects.filter(id__gte=-1, train=0).delete()
         data = { 'detail': 'delete data successful' }
-        return Response(data, status=status.HTTP_200_OK)
-
-    @action(methods=['GET'], detail=False)
-    def clean(self, request):
-        DataServices.restore_data()
-        data = { 'detail': 'Clean data done' }
-        return Response(data, status=status.HTTP_200_OK)
-
-    @action(methods=['GET'], detail=False)
-    def cpu_scores(self, request):
-        ScoreServices.save_cpu_scores()
-        data = { 'detail': 'get cpu data done' }
-        return Response(data, status=status.HTTP_200_OK)
-
-    @action(methods=['GET'], detail=False)
-    def gpu_scores(self, request):
-        ScoreServices.save_gpu_scores()
-        data = { 'detail': 'get gpu data done' }
         return Response(data, status=status.HTTP_200_OK)
 
     def list(self, request):
@@ -87,8 +76,7 @@ class DataViewSet(viewsets.GenericViewSet):
         return Response(data, status=status.HTTP_200_OK)
 
     @action(methods=['GET'], detail=False)
-    def get_thumnails(self, request):
-        ListDataServices.get_thumnails()
-        data = { 'detail': 'get thumnails data done' }
+    def cpu_scores(self, request):
+        ScoreServices.save_cpu_scores()
+        data = { 'detail': 'get cpu data done' }
         return Response(data, status=status.HTTP_200_OK)
-

@@ -1,4 +1,4 @@
-from .crawler import MegaCrawler, PhiLongCrawler, XuanVinhCrawler
+from .crawler import MegaCrawler, PhiLongCrawler, XuanVinhCrawler, TikiCrawler
 
 
 class ShopCrawler:
@@ -11,3 +11,5 @@ class ShopCrawler:
             return PhiLongCrawler.fetch_data()
         elif shop_id == 3:
             return MegaCrawler.fetch_data()
+        # elif shop_id == 4:
+        #     return TikiCrawler.fetch_data()

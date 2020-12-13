@@ -36,7 +36,7 @@ class QuestionClustering:
                     print('Not value price')
 
         # screen size
-        if len(answers) > 4:
+        if len(answers) > 4 and answers[4]:
             screen_size_answer = ScreenSizeCluster.get_value(answers[4])
             if screen_size_answer:
                 queryset = queryset.filter(reduce(operator.or_, (Q(screen_size__icontains=x) for x in screen_size_answer)))
@@ -65,22 +65,22 @@ class QuestionClustering:
             os_answer = answers[5]
             if os_answer:
                 if os_answer == "Microsoft windows":
-                    queryset = queryset.exclude(name__icontains='Apple')
-                if os_answer == "Mac os":
-                    queryset = queryset.filter(name__icontains='Apple')
-                if os_answer == "Linux":
+                    queryset = queryset.exclude(Q(name__icontains='macbook') | Q(name__icontains='apple'))
+                elif os_answer == "Mac os":
+                    queryset = queryset.filter(Q(name__icontains='macbook') | Q(name__icontains='apple'))
+                elif os_answer == "Linux":
                     queryset = queryset.filter(reduce(operator.or_, (Q(name__icontains=x) for x in ['dell', 'thinkpad', 'thinkbook'])))
-
-        # purpose
-        if len(answers) > 1:
-            purpose_answer = answers[1]
-            queryset = PurposeCluster.cluster_purpose(queryset, purpose_answer)
 
         # features
         if len(answers) > 3:
             feature_answer = answers[3]
             if feature_answer:
                 queryset = FeatureCluster.feature_cluster(feature_answer)
+
+        # purpose
+        if len(answers) > 1:
+            purpose_answer = answers[1]
+            queryset = PurposeCluster.cluster_purpose(queryset, purpose_answer)
 
         # weight
         if len(answers) > 8:

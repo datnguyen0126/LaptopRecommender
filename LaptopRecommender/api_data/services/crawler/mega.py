@@ -1,13 +1,12 @@
+from api_data.models import Laptop
 from api_data.services.crawler.data_specs import DataSpecs
 from api_data.utils import FAKE_HEADER
 from bs4 import BeautifulSoup
-import requests
-import json, re
+import requests, json, re
 
 LOGO = 'https://mega.com.vn/media/banner/logo_logo web.png'
 SHOP_URL = 'https://mega.com.vn'
 PRODUCT_URL = 'https://mega.com.vn/hang-san-xuat.html?sort=price-asc&page={page}'
-product_links = []
 
 
 class MegaCrawler:
@@ -15,9 +14,12 @@ class MegaCrawler:
     @classmethod
     def get_description(cls, html_text):
         ret = ''
-        for text in html_text.findAll('span'):
-            ret = ret + text.text
-        return ret
+        try:
+            for text in html_text.findAll('span'):
+                ret = ret + text.text
+            return ret
+        except Exception:
+            return ''
 
     @classmethod
     def get_products(cls):
@@ -36,28 +38,30 @@ class MegaCrawler:
                 break
             for div_child in div_all.findAll('div', {"class": 'p-item'}):
                 temp = div_child.find('div', {"class": 'p-container'}).find('a')['href']
-                if div_child.find('div', {"class": 'p-container'}).find('span', {"class": 'p-price'}).text == 'Liên hệ':
-                    product_links.append(temp)
+                if div_child.find('div', {"class": 'p-container'}).find('span', {"class": 'p-price'}).text != 'Liên hệ':
+                    ret.append(temp)
                 # print(div_child.find('h2').find('a')['href'])
             i = i + 1
+        return ret
 
     @classmethod
     def get_product_info(cls, product_link):
+        brand_keywords = ['Tên Hãng', 'Hãng sản xuất']
         ret = dict()
+        brand = ''
         source = requests.get(SHOP_URL + product_link, headers=FAKE_HEADER).text
         parser = BeautifulSoup(source, 'html.parser')
-        name = parser.find('h1', {'class':'product-name'})
-        div_description = parser.find('div', {'class':'content-text overflow-hidden position-relative'})
+        price = parser.find('div', {'id':'product-info-price'}).find('b', {'class':'text-20 red'}).text
+        thumbnail = SHOP_URL + parser.find('div', {'id':'img-large'}).find('img')['src']
+        name = parser.find('h1', {'class':'product-name'}).text
+        div_description = parser.find('div', {'id':'description'})
         div_info = parser.find('div', {"class": "box-common technical-table mt-3"})
         table = div_info.find('tbody')
         for tr in table.findAll('tr'):
-            temp = []
-            for td in tr.findAll('td'):
-                temp.append(td.find('span').text)
-                if td.find('p'):
-                    temp.append(td.find('span').text)
-                else:
-                    temp.append(td.text)
+            tds = tr.findAll('td')
+            if len(tds) < 2:
+                continue
+            temp = [tds[0].text.strip("\n"), tds[1].text.strip("\n")]
             if temp[0] == 'Dung lượng':
                 if 'ddr' in temp[1].lower():
                     temp_dict = {
@@ -69,33 +73,33 @@ class MegaCrawler:
                         'disk': temp[1]
                     }
                     ret.update(temp_dict)
+            elif temp[0] in brand_keywords:
+                brand = temp[1]
             else:
-                if len(temp) > 1:
-                    temp_dict = {
-                        temp[0]: temp[1]
-                    }
-                    ret.update(temp_dict)
-        return ret, str(div_description), name, price, thumbnail
+                temp_dict = {
+                    temp[0]: temp[1]
+                }
+                ret.update(temp_dict)
+        return ret, str(div_description), name, price, thumbnail, brand
 
     @classmethod
     def fetch_data(cls):
         success = 0
         failed = []
-        for brand_url in list_brand_urls:
-            product_links = cls.get_product_links(brand_url)
-            for product_link in product_links:
-                try:
-                    specs, description, name, price, thumbnail = cls.get_product_info(product_link)
-                    clean_specs = DataSpecs.get_specifications(seller=LOGO, brand=brand_url.split('-')[1].split('.')[0],
+        product_links = cls.get_products()
+        for product_link in product_links:
+            try:
+                specs, description, name, price, thumbnail, brand = cls.get_product_info(product_link)
+                clean_specs = DataSpecs.get_specifications(seller=LOGO, brand=brand,
                                                                    name=name, description=description, specs=specs,
                                                                    price=price, thumbnail=thumbnail)
-                    clean_specs.update(link=SHOP_URL + product_link)
-                    LaptopBackup.objects.create(**clean_specs)
-                except Exception as e:
-                    failed.append(SHOP_URL + product_link)
-                    print(e)
-                    continue
-                else:
-                    success = success + 1
-                    print('add success')
+                clean_specs.update(link=SHOP_URL + product_link)
+                Laptop.objects.create(**clean_specs)
+            except Exception as e:
+                failed.append(SHOP_URL + product_link)
+                print(e)
+                continue
+            else:
+                success = success + 1
+                print('add success')
         return success, failed

@@ -32,8 +32,7 @@ class Questions():
                 "Video production (pro)",
                 "Video production basic)",
                 "3D design",
-                "Front-end developer",
-                "Back-end Tech"
+                "Programming"
             ],
             "train": True,
             "required": True,

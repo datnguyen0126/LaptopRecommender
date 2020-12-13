@@ -4,7 +4,7 @@ import requests
 from .data_specs import DataSpecs
 import json, re
 
-from ...models import LaptopBackup, LaptopId
+from ...models import Laptop
 
 LOGO = 'http://philong.com.vn/media/banner/logo_logo_logo.philong.png'
 SHOP_URL = 'https://philong.com.vn'
@@ -19,9 +19,12 @@ class PhiLongCrawler:
         if not html_text:
             return ''
         ret = ''
-        for text in html_text.findAll('span'):
-            ret = ret + text.text
-        return ret
+        try:
+            for text in html_text.findAll('span'):
+                ret = ret + text.text
+            return ret
+        except Exception:
+            return ''
 
     @classmethod
     def get_laptop_brand_links(cls):
@@ -60,31 +63,43 @@ class PhiLongCrawler:
         thumbnail = SHOP_URL + parser.find('a', {'id':'Zoomer'}).find('img')['src']
         div_description = parser.find('div', {"class": "entry-content productDescription"})
         div_info = parser.find('div', {"class": "tbl-technical"})
-        table = div_info.find('table')
-        for tr in table.findAll('tr'):
-            temp = []
-            for td in tr.findAll('td'):
-                if td.find('p'):
-                    temp.append(td.find('p').text)
+        try:
+            table = div_info.find('table')
+            for tr in table.findAll('tr'):
+                temp = []
+                if tr.find('th'):
+                    temp.append(tr.find('th').text)
+                    if tr.find('p'):
+                        temp.append(tr.find('p').text)
+                    else:
+                        temp.append(tr.find('td').text)
                 else:
-                    temp.append(td.text)
-            if temp[0] == 'Dung lượng':
-                if 'ddr' in temp[1].lower():
-                    temp_dict = {
-                        'ram': temp[1]
-                    }
-                    ret.update(temp_dict)
+                    for td in tr.findAll('td'):
+                        if td.find('p'):
+                            temp.append(td.find('p').text)
+                        else:
+                            temp.append(td.text)
+                if len(temp) < 2:
+                    continue
+                if temp[0] == 'Dung lượng':
+                    if 'ddr' in temp[1].lower():
+                        temp_dict = {
+                            'ram': temp[1]
+                        }
+                        ret.update(temp_dict)
+                    else:
+                        temp_dict = {
+                            'disk': temp[1]
+                        }
+                        ret.update(temp_dict)
                 else:
-                    temp_dict = {
-                        'disk': temp[1]
-                    }
-                    ret.update(temp_dict)
-            else:
-                if len(temp) > 1:
-                    temp_dict = {
-                        temp[0]: temp[1]
-                    }
-                    ret.update(temp_dict)
+                    if len(temp) > 1:
+                        temp_dict = {
+                            temp[0].strip(): temp[1]
+                        }
+                        ret.update(temp_dict)
+        except Exception:
+            pass
         return ret, cls.get_description(div_description), name, price, thumbnail
 
     @classmethod
@@ -101,7 +116,7 @@ class PhiLongCrawler:
                                                                    name=name, description=description, specs=specs,
                                                                    price=price, thumbnail=thumbnail)
                     clean_specs.update(link=SHOP_URL + product_link)
-                    LaptopBackup.objects.create(**clean_specs)
+                    Laptop.objects.create(**clean_specs)
                 except Exception as e:
                     failed.append(SHOP_URL + product_link)
                     print(e)
@@ -109,4 +124,21 @@ class PhiLongCrawler:
                 else:
                     success = success + 1
                     print('add success')
+        # for macbook
+        product_links = cls.get_product_links('/macbook.html')
+        for product_link in product_links:
+            try:
+                specs, description, name, price, thumbnail = cls.get_product_info(product_link)
+                clean_specs = DataSpecs.get_specifications(seller=LOGO, brand='Apple',
+                                                           name=name, description=description, specs=specs,
+                                                           price=price, thumbnail=thumbnail)
+                clean_specs.update(link=SHOP_URL + product_link)
+                Laptop.objects.create(**clean_specs)
+            except Exception as e:
+                failed.append(SHOP_URL + product_link)
+                print(e)
+                continue
+            else:
+                success = success + 1
+                print('add success')
         return success, failed

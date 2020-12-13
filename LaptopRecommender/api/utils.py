@@ -7,7 +7,7 @@ class Utils:
         try:
             x = int(value)
             return x
-        except:
+        except Exception:
             return default
 
     @classmethod
