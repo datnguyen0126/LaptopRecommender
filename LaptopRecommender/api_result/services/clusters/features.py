@@ -33,7 +33,7 @@ class FeatureCluster:
 
     @classmethod
     def get_touchscreen(cls, laptop_queryset):
-        keywords = ['cảm ứng', ' 360 ', ' touch screen']
+        keywords = ['hình cảm ứng', ' 360 độ', ' touch screen']
         return laptop_queryset.filter(reduce(operator.or_, (Q(description__icontains=x) for x in keywords)))
 
     @classmethod

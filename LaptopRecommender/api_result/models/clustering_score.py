@@ -17,4 +17,3 @@ class ClusteringScores(models.Model):
 
     class Meta:
         db_table = 'laptop_score'
-

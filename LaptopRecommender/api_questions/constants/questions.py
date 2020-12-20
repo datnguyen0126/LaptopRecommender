@@ -29,8 +29,7 @@ class Questions():
                 "Heavy Gaming",
                 "Photo editing (pro)",
                 "Photo editing (basic)",
-                "Video production (pro)",
-                "Video production basic)",
+                "Video production",
                 "3D design",
                 "Programming"
             ],

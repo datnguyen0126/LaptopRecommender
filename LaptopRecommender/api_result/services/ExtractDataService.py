@@ -9,12 +9,21 @@ from api_data.models import Laptop
 class ExtractDataService:
 
     @classmethod
-    def get_macbook(cls, pro=True, small=True, all=False):
+    def get_macbook(cls, pro=True, small=True, all=False, price=0):
+        queryset = Laptop.objects.all()
+        if price == 'Unlimited':
+            queryset = queryset.filter(price__gte=0)
+        else:
+            try:
+                price = int(price.split(' ')[2])
+                queryset = queryset.filter(price__lte=price)
+            except ValueError:
+                print('Not value price')
         if all:
             if pro:
-                laptops_queryset = Laptop.objects.filter(name__icontains='macbook pro')
+                laptops_queryset = queryset.filter(name__icontains='macbook pro')
             else:
-                laptops_queryset = Laptop.objects.filter(name__icontains='macbook')
+                laptops_queryset = queryset.filter(name__icontains='macbook')
             return laptops_queryset
         keywords = []
         if pro:
@@ -26,7 +35,7 @@ class ExtractDataService:
         else:
             keywords.append('15.')
             keywords.append('16.')
-        laptops_queryset = Laptop.objects.filter(Q(reduce(operator.and_, (Q(name__icontains=x) for x in keywords))))
+        laptops_queryset = queryset.filter(Q(reduce(operator.and_, (Q(name__icontains=x) for x in keywords))))
         return laptops_queryset
 
     @classmethod

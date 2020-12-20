@@ -75,12 +75,12 @@ class QuestionClustering:
         if len(answers) > 3:
             feature_answer = answers[3]
             if feature_answer:
-                queryset = FeatureCluster.feature_cluster(feature_answer)
+                queryset = FeatureCluster.feature_cluster(queryset, feature_answer)
 
         # purpose
         if len(answers) > 1:
             purpose_answer = answers[1]
-            queryset = PurposeCluster.cluster_purpose(queryset, purpose_answer)
+            queryset = PurposeCluster.cluster_purpose(queryset, purpose_answer, money_answer)
 
         # weight
         if len(answers) > 8:

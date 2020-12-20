@@ -47,6 +47,19 @@ class ResultViewSet(viewsets.GenericViewSet):
         serializer = self.get_serializer(product)
         return Response(serializer.data)
 
+    @action(methods=['GET'], detail=False)
+    def cluster_option(self, request):
+        try:
+            PurposeCluster.cluster_ai_answer('heavy gaming')
+            PurposeCluster.cluster_ai_answer('video production')
+        except Exception:
+            data = {'detail': 'error occurred!'}
+            return Response(data, status=status.HTTP_400_BAD_REQUEST)
+        data = {'detail': 'cluster successfully'}
+        return Response(status=status.HTTP_200_OK)
+
+
+
     # set train product
 
     @action(methods=['POST'], detail=False)
