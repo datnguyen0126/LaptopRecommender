@@ -27,5 +27,7 @@ class Laptop(models.Model):
     train = models.BooleanField(default=False)
     purpose_group = models.CharField(max_length=255, blank=True, null=True)
 
+    suitable = models.IntegerField(default=0)
+
     class Meta:
         db_table = 'laptop'

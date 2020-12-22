@@ -51,7 +51,18 @@ class QuestionClustering:
         if len(answers) > 7:
             gpu_answer = answers[7]
             if gpu_answer and len(gpu_answer) > 0:
-                queryset = queryset.filter(reduce(operator.or_, (Q(vga__icontains=x) for x in gpu_answer)))
+                gpu_filter = []
+                for gpu in gpu_answer:
+                    if 'nvidia mx' in gpu.lower():
+                        gpu_filter.append('mx')
+                    elif 'amd' in gpu.lower():
+                        gpu_filter.append('amd')
+                        gpu_filter.append('radeon')
+                    elif 'nvidia gtx' in gpu.lower():
+                        gpu_filter.append('gtx')
+                    elif 'intel' in gpu.lower():
+                        gpu_filter.append('intel')
+                queryset = queryset.filter(reduce(operator.or_, (Q(vga__icontains=x) for x in gpu_filter)))
 
         # brand
         if len(answers) > 2:
@@ -86,5 +97,5 @@ class QuestionClustering:
         if len(answers) > 8:
             weight_answer = answers[8]
             if weight_answer:
-                queryset = WeightCluster.weight_cluster(weight_answer)
+                queryset = WeightCluster.weight_cluster(queryset, weight_answer)
         return queryset

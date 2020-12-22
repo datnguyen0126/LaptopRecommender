@@ -1,4 +1,8 @@
+import operator
 import re
+from functools import reduce
+
+from django.db.models import Q
 
 from api.utils import Utils
 from api_result.models import ClusteringScores, TrainData
@@ -8,38 +12,81 @@ class WeightCluster:
     k = 9
 
     option = ["Very light", "Medium", "Don't bother"]
+    series = {
+        'light': ['zenbook', 'macbook', 'gram', 'spectre', 'elitebook', 'xps', 'swift', 'yoga', 'thinkbook', 'slim', 'envy', 'modern'],
+        'medium': ['vostro', 'inspiron', 'aspire', 'latitude', 'vivobook', 'thinkpad', 'ideapad', 'pavilion', 'probook']
+    }
 
     @classmethod
     def weight_cluster(cls, laptop_queryset, answer):
+        if answer == cls.option[0]: #
+            ids = []
+            for laptop in laptop_queryset:
+                if not laptop.weight:
+                    if cls.in_list_keyword(laptop.name, cls.series.get('light')) and laptop.price > 15000000:
+                        ids.append(laptop.id)
+                        continue
+                if cls.extract_size(laptop.screen_size) > 15:
+                    if cls.extract_values(laptop.weight)[0] < 1.8:
+                        ids.append(laptop.id)
+                else:
+                    if cls.extract_values(laptop.weight)[0] < 1.4:
+                        ids.append(laptop.id)
+            return laptop_queryset.filter(id__in=ids)
+        if answer == cls.option[1]:
+            ids = []
+            for laptop in laptop_queryset:
+                if not laptop.weight:
+                    if cls.in_list_keyword(laptop.name, cls.series.get('medium')):
+                        ids.append(laptop.id)
+                        continue
+                if cls.extract_size(laptop.screen_size) > 15:
+                    if cls.extract_values(laptop.weight)[0] < 2.4:
+                        ids.append(laptop.id)
+                else:
+                    if cls.extract_values(laptop.weight)[0] < 2.0:
+                        ids.append(laptop.id)
+            return laptop_queryset.filter(id__in=ids)
         if answer == cls.option[2]:
             return laptop_queryset
-        ids = [laptop.id for laptop in laptop_queryset if cls.check_laptop(answer, laptop)]
-        temp_laptops = laptop_queryset(id__in=ids)
-        return temp_laptops
 
     @classmethod
-    def extract_values(cls, text, key): # cm for dimension and kg for weight
-        pattern = '\d*\.?\d+'
-        values = re.findall(pattern, text)
-        ret = []
-        if key == 'dimension':
-            for value in values:
-                value = Utils.convert_to_float(value)
-                if 'mm' in text:
-                    value = value / 1000
-                ret.append(value)
-        if key == 'weight':
-            for value in values:
-                value = Utils.convert_to_float(value)
+    def in_list_keyword(cls, text, keywords):
+        for key in keywords:
+            if key in text:
+                return True
+        return False
+
+    @classmethod
+    def extract_values(cls, text, key='weight'): # cm for dimension and kg for weight
+        try:
+            text = text.replace(',', '.')
+            pattern = '\d*\.?\d+'
+            values = re.findall(pattern, text)
+            ret = []
+            if key == 'dimension':
+                for value in values:
+                    value = Utils.convert_to_float(value)
+                    if 'mm' in text:
+                        value = value / 1000
+                    ret.append(value)
+            if key == 'weight':
+                value = Utils.convert_to_float(values[0])
                 if value > 50 and 'kg' not in text and 'g' in text:
                     value = value / 1000
                 ret.append(value)
-        return ret
+            return ret
+        except Exception:
+            return [0]
 
     @classmethod
-    def get_value(cls, screen_size):
-        pattern = '\d*\.?\d+'
-        return re.findall(pattern, screen_size)[0]
+    def extract_size(cls, screen_size):
+        try:
+            pattern = '\d*[\.|,]?\d+'
+            ssize = re.findall(pattern, screen_size)[0]
+            return float(ssize)
+        except Exception:
+            return 0
 
     @classmethod
     def distance(cls, check_laptop, train_laptop):

@@ -122,13 +122,22 @@ class ResultViewSet(viewsets.GenericViewSet):
     @action(methods=['POST'], detail=False)
     def get_result_products(self, request):
         answers = request.data.get('answers')
+        shop = request.data.get('shop', 'all')
+        quantity = int(request.data.get('page_size', 10))
+        counting = request.data.get('count', None)
         laptops = QuestionClustering.clustering(answers)
-        plids = laptops.filter(link__icontains='philong').order_by('-price').values_list('id', flat=True)[0:6]
-        mgids = laptops.filter(link__icontains='mega').order_by('-price').values_list('id', flat=True)[0:4]
-        xvids = laptops.filter(link__icontains='xuanvinh').order_by('-price').values_list('id', flat=True)[0:5]
-        ret_ids = list(plids) + list(mgids) + list(xvids)
+        if counting:
+            data = { 'number': len(laptops) }
+            return Response(data, status=status.HTTP_200_OK)
+        if shop == 'all':
+            plids = laptops.filter(link__icontains='philong').order_by('-price').values_list('id', flat=True)[0:quantity / 3]
+            mgids = laptops.filter(link__icontains='mega').order_by('-price').values_list('id', flat=True)[0:quantity / 3]
+            xvids = laptops.filter(link__icontains='xuanvinh').order_by('-price').values_list('id', flat=True)[0:quantity / 3]
+            ret_ids = list(plids) + list(mgids) + list(xvids)
+        else:
+            ret_laptopids = laptops.filter(link__icontains=shop).order_by('-price').values_list('id', flat=True)[0:quantity]
+            ret_ids = list(ret_laptopids)
         laptops = laptops.filter(id__in=ret_ids).order_by('-price')
-        #laptops = Laptop.objects.all()[0:5]
         if not laptops:
             data = { 'detail': 'No product found' }
             return Response(data, status=status.HTTP_404_NOT_FOUND)

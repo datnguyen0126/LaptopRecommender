@@ -38,7 +38,7 @@ SECRET_KEY = '5o%1s@ieua)smmgr(zgbl%ixp7$cok$w^v8f&m(-fvjim2-1vk'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -101,7 +101,8 @@ DATABASES = {
         'HOST': env("DATABASE_HOST"),
         'PORT': env("DATABASE_PORT"),
         'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            'ssl': True
         }
     }
 }

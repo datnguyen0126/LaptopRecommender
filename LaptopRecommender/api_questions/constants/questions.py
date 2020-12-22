@@ -113,8 +113,8 @@ class Questions():
             "content": "Do you want a good graphic cards?",
             "options": [
                 "Integrated intel",
-                "Nvidia geforce GT series",
-                "Nvidia geforce GTX series",
+                "Nvidia MX series",
+                "Nvidia GTX series",
                 "Amd series"
             ],
             "train": False,
@@ -131,7 +131,7 @@ class Questions():
             ],
             "train": True,
             "required": False,
-            "multiple": True,
+            "multiple": False,
             "spec": True
         },
 

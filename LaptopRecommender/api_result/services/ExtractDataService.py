@@ -26,16 +26,16 @@ class ExtractDataService:
                 laptops_queryset = queryset.filter(name__icontains='macbook')
             return laptops_queryset
         keywords = []
-        if pro:
-            keywords.append('macbook pro')
-        else:
-            keywords.append('macbook air')
         if small:
             keywords.append('13.')
         else:
             keywords.append('15.')
             keywords.append('16.')
-        laptops_queryset = queryset.filter(Q(reduce(operator.and_, (Q(name__icontains=x) for x in keywords))))
+        laptops_queryset = queryset.filter(name__icontains='macbook').filter(Q(reduce(operator.or_, (Q(name__icontains=x) for x in keywords))))
+        if pro:
+            laptops_queryset = laptops_queryset.exclude(name__icontains='macbook air')
+        else:
+            laptops_queryset = laptops_queryset.exclude(name__icontains='macbook pro')
         return laptops_queryset
 
     @classmethod

@@ -53,6 +53,8 @@ class DataViewSet(viewsets.GenericViewSet):
             queryset = Laptop.objects.filter(name__icontains=query_text).values('id', 'name', 'price')
         elif query_option == 'cpu':
             queryset = Laptop.objects.filter(cpu__icontains=query_text).values('id', 'name', 'price')
+        elif query_option == 'negative rating':
+            queryset = Laptop.objects.filter(suitable__lt=0).values('id', 'name', 'price')
         return Response(queryset)
 
     def retrieve(self, request, pk=None):
@@ -79,4 +81,23 @@ class DataViewSet(viewsets.GenericViewSet):
     def cpu_scores(self, request):
         ScoreServices.save_cpu_scores()
         data = { 'detail': 'get cpu data done' }
+        return Response(data, status=status.HTTP_200_OK)
+
+    @action(methods=['POST'], detail=False)
+    def add_rating(self, request):
+        id = request.data.get('laptop_id')
+        suit = request.data.get('suitable')
+        try:
+            laptop = get_object_or_404(Laptop, pk=id)
+            suitable = laptop.suitable
+            if suit:
+                suitable = int(suitable) + 1
+            else:
+                suitable = int(suitable) - 1
+            laptop.suitable = suitable
+            laptop.save()
+        except Exception:
+            data = { 'detail': 'error occured' }
+            return Response(data, status=status.HTTP_400_BAD_REQUEST)
+        data = { 'detail': 'success' }
         return Response(data, status=status.HTTP_200_OK)

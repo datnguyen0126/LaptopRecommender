@@ -84,7 +84,7 @@ class PurposeCluster:
     def get_Light_Gaming(cls, laptops_queryset, money_answer):
         search_vga = ['nvidia', 'amd', 'rtx', 'gtx']
         laptops_queryset = laptops_queryset.filter(reduce(operator.or_, (Q(vga__icontains=x) for x in search_vga)))\
-                                                        .exclude(cpu__icontains='ryzen 3', name__icontains='macbook')
+                                                        .exclude(cpu__icontains='ryzen 3').exclude(name__icontains='macbook')
         laptops_queryset = ExtractDataService.ram_filter(laptops_queryset, min=7)
         return laptops_queryset
 
@@ -103,16 +103,16 @@ class PurposeCluster:
     def get_Photo_editing_basic(cls, laptops_queryset, money_answer):
         search_vga = ['nvidia', 'amd', 'rtx', 'gtx']
         laptops_queryset = laptops_queryset.filter(reduce(operator.or_, (Q(vga__icontains=x) for x in search_vga)))\
-                                                        .exclude(cpu__icontains='ryzen 3', name__icontains='macbook')
+                                                        .exclude(cpu__icontains='ryzen 3').exclude(name__icontains='macbook')
         laptops_queryset = ExtractDataService.ram_filter(laptops_queryset, min=7)
-        return laptops_queryset
+        return laptops_queryset | ExtractDataService.get_macbook(all=True, pro=True, price=money_answer)
 
     @classmethod
     def get_Video_production(cls, laptops_queryset, money_answer):  # ------------------------------------------------------------
         answer = Answers.objects.filter(content__icontains='video production').first()
         laptops_queryset = laptops_queryset.filter(purpose_group__icontains=str(answer.id))
-
-        return laptops_queryset
+        laptops_queryset = ExtractDataService.ram_filter(laptops_queryset, min=15)
+        return laptops_queryset | ExtractDataService.get_macbook(pro=True, small=False, price=money_answer)
 
     @classmethod
     def get_3D_design(cls, laptops_queryset, money_answer):
